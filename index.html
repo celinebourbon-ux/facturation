@@ -4,59 +4,54 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PsyH — Facturation</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-:root{--bleu:#17324f;--bleu-clair:#3d5f80;--or:#b08642;--fond:#f5f7fa;--carte:#fff;--ligne:#e4e9ef;--texte:#26333f;--gris:#6b7784}
+:root{--bleu:#17324f;--or:#b08642;--fond:#f5f7fa;--ligne:#e4e9ef;--gris:#6b7784}
 *{box-sizing:border-box}
-body{margin:0;background:var(--fond);color:var(--texte);font-family:"Segoe UI",Arial,Helvetica,sans-serif;line-height:1.5}
+body{margin:0;background:var(--fond);color:#26333f;font-family:"Segoe UI",Arial,sans-serif;line-height:1.5}
 .hidden{display:none!important}
 .login{max-width:400px;margin:14vh auto;background:#fff;padding:40px;border-radius:18px;box-shadow:0 18px 45px rgba(23,50,79,.12)}
-.login h1{margin:0 0 8px;color:var(--bleu);font-size:26px;letter-spacing:-.3px}
+.login h1{margin:0 0 8px;color:var(--bleu);font-size:26px}
 .login p{margin:0 0 26px;color:var(--gris)}
-input,select,textarea{width:100%;padding:12px 14px;border:1px solid #d5dde5;border-radius:10px;font-size:15px;margin-bottom:16px;background:#fff;color:var(--texte)}
-input:focus,select:focus,textarea:focus{outline:2px solid rgba(23,50,79,.15);border-color:var(--bleu-clair)}
-button{background:var(--bleu);color:#fff;border:0;padding:12px 18px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:.15s}
-button:hover{filter:brightness(1.08)}
-button.secondary{background:#e9eef4;color:var(--bleu)}
+input,select,textarea{width:100%;padding:12px 14px;border:1px solid #d5dde5;border-radius:10px;font-size:15px;margin-bottom:16px;background:#fff}
+button{background:var(--bleu);color:#fff;border:0;padding:12px 18px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer}
+button.secondary{background:#e7edf3;color:var(--bleu)}
 button.gold{background:var(--or)}
-.app{max-width:1180px;margin:30px auto;padding:0 20px 60px}
+.app{max-width:1180px;margin:26px auto;padding:0 20px 60px}
 .topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:26px}
-.topbar h1{color:var(--bleu);font-size:25px;margin:0;letter-spacing:-.3px}
+.topbar h1{color:var(--bleu);font-size:25px;margin:0}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
-.card{background:var(--carte);padding:26px;border-radius:16px;box-shadow:0 8px 26px rgba(23,50,79,.06)}
+.card{background:#fff;padding:26px;border-radius:16px;box-shadow:0 8px 26px rgba(23,50,79,.06)}
 .card h2{margin:0 0 20px;font-size:18px;color:var(--bleu)}
 label{display:block;font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gris);margin-bottom:7px}
 .row{display:flex;gap:10px}
-.row input{margin-bottom:16px}
 .actions{display:flex;gap:12px;flex-wrap:wrap;margin:26px 0}
 .invoice{background:#fff;padding:48px;border-radius:18px;box-shadow:0 10px 34px rgba(23,50,79,.08);max-width:860px;margin:0 auto}
 .inv-top{display:flex;justify-content:space-between;gap:36px;align-items:flex-start;padding-bottom:28px;border-bottom:1px solid var(--ligne)}
-.brand{max-width:330px}
-.brand img{max-height:74px;max-width:190px;object-fit:contain;margin-bottom:16px}
+.brand img{max-height:72px;max-width:185px;object-fit:contain;margin-bottom:16px}
 .brand h2{margin:0 0 10px;color:var(--bleu);font-size:21px;line-height:1.3}
 .brand p{margin:2px 0;font-size:13px;color:var(--gris)}
 .inv-title{text-align:right}
-.inv-title h3{margin:0 0 16px;color:var(--bleu);font-size:30px;letter-spacing:2px}
+.inv-title h3{margin:0 0 16px;color:var(--bleu);font-size:28px;letter-spacing:3px}
 .inv-title p{margin:4px 0;font-size:14px;color:var(--gris)}
 .inv-title b{color:var(--bleu)}
-.client-block{margin:32px 0;padding:20px 24px;background:#f8fafc;border-left:4px solid var(--or);border-radius:0 10px 10px 0}
-.client-block strong{display:block;margin-bottom:6px;color:var(--bleu);font-size:13px;text-transform:uppercase;letter-spacing:.5px}
- prestations{margin-top:8px}
-table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14.5px}
-thead th{background:var(--bleu);color:#fff;text-align:left;padding:14px 16px;font-weight:600}
-tbody td{padding:18px 16px;border-bottom:1px solid var(--ligne);vertical-align:top}
+.client-block{margin:32px 0;padding:20px 24px;background:#f8fafc;border-left:4px solid var(--or)}
+.client-block strong{display:block;margin-bottom:6px;color:var(--bleu);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:14.5px}
+thead th{background:var(--bleu);color:#fff;text-align:left;padding:14px 16px}
+tbody td{padding:20px 16px;border-bottom:1px solid var(--ligne);vertical-align:top}
 .right{text-align:right}
 .muted{color:var(--gris);font-size:13px;margin-top:5px}
-.totals{width:320px;margin:28px 0 0 auto;font-size:15px}
+.totals{width:320px;margin:30px 0 0 auto;font-size:15px}
 .totals>div{display:flex;justify-content:space-between;padding:10px 0}
-.totals .grand{margin-top:10px;padding-top:14px;border-top:2px solid var(--bleu);color:var(--bleu);font-weight:800;font-size:20px}
-.signature{margin-top:56px;display:flex;justify-content:flex-end}
+.grand{margin-top:10px;padding-top:14px;border-top:2px solid var(--bleu);color:var(--bleu);font-weight:800;font-size:20px}
+.signature{margin-top:60px;display:flex;justify-content:flex-end}
 .signature-box{text-align:center;min-width:250px}
-.signature-box img{max-height:88px;max-width:230px;display:block;margin:0 auto 8px}
+.signature-box img{max-height:86px;max-width:220px;display:block;margin:0 auto 8px}
 .signature-box p{margin:0;font-size:13px;color:var(--gris)}
 .legal{margin-top:44px;padding-top:20px;border-top:1px solid var(--ligne);font-size:11px;color:var(--gris);line-height:1.65}
 .note{font-size:13px;color:var(--gris)}
-@media(max-width:820px){.grid{grid-template-columns:1fr}.invoice{padding:28px}.inv-top{flex-direction:column}.inv-title{text-align:left}}
+@media(max-width:820px){.grid{grid-template-columns:1fr}.invoice{padding:28px}.inv-top{flex-direction:column}}
 </style>
 </head>
 <body>
@@ -64,7 +59,7 @@ tbody td{padding:18px 16px;border-bottom:1px solid var(--ligne);vertical-align:t
 <div id="login" class="login">
   <h1>PsyH — Facturation</h1>
   <p>Accès protégé par mot de passe.</p>
-  <label for="pwd">Mot de passe</label>
+  <label>Mot de passe</label>
   <input id="pwd" type="password" placeholder="Mot de passe" autocomplete="current-password">
   <button onclick="login()">Entrer</button>
   <p class="note" style="margin-top:18px">Mot de passe initial : <b>PsyH2026</b></p>
@@ -133,27 +128,11 @@ tbody td{padding:18px 16px;border-bottom:1px solid var(--ligne);vertical-align:t
       </div>
 
       <table>
-        <thead>
-          <tr>
-            <th style="width:42%">Motif / Prestation</th>
-            <th>Unité de vente</th>
-            <th class="right">Qté — heures</th>
-            <th class="right">Prix</th>
-            <th class="right">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <div id="outMotif" style="font-weight:700;color:var(--bleu)"></div>
-              <div id="outDesignation" class="muted"></div>
-            </td>
-            <td>Heure de consultation</td>
-            <td class="right" id="outQty"></td>
-            <td class="right" id="outPrice"></td>
-            <td class="right" id="outLineTotal" style="font-weight:700"></td>
-          </tr>
-        </tbody>
+        <thead><tr><th style="width:38%">Motif / Prestation</th><th>Unité de vente</th><th class="right">Qté — heures</th><th class="right">Prix</th><th class="right">Total</th></tr></thead>
+        <tbody><tr>
+          <td><div id="outMotif" style="font-weight:700;color:var(--bleu)"></div><div id="outDesignation" class="muted"></div></td>
+          <td>Heure de consultation</td><td class="right" id="outQty"></td><td class="right" id="outPrice"></td><td class="right" id="outLineTotal" style="font-weight:700"></td>
+        </tr></tbody>
       </table>
 
       <div class="totals">
@@ -162,12 +141,10 @@ tbody td{padding:18px 16px;border-bottom:1px solid var(--ligne);vertical-align:t
         <div class="grand"><span>Total TTC</span><span id="outTTC"></span></div>
       </div>
 
-      <div class="signature">
-        <div class="signature-box">
-          <img id="signaturePreview" class="hidden" alt="Signature">
-          <p>Céline Bourbon<br>Psychologue</p>
-        </div>
-      </div>
+      <div class="signature"><div class="signature-box">
+        <img id="signaturePreview" class="hidden" alt="Signature">
+        <p>Céline Bourbon<br>Psychologue</p>
+      </div></div>
 
       <div class="legal">
         <b>Cabinet PsyH — Céline Bourbon, Psychologue.</b><br>
@@ -188,10 +165,7 @@ tbody td{padding:18px 16px;border-bottom:1px solid var(--ligne);vertical-align:t
     <div class="card">
       <h2>Récapitulatif mensuel</h2>
       <div class="grid">
-        <div>
-          <label>Mois à consulter</label>
-          <input id="recapMonth" type="month" onchange="renderRecap()">
-        </div>
+        <div><label>Mois à consulter</label><input id="recapMonth" type="month" onchange="renderRecap()"></div>
         <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
           <button class="secondary" onclick="downloadRecapCSV()">Récapitulatif CSV</button>
           <button class="secondary" onclick="downloadRecapPDF()">Récapitulatif PDF</button>
@@ -244,17 +218,11 @@ function generateRef(force){
 function regenerateRef(){generateRef(true);updateInvoice()}
 function eur(n){return Number(n||0).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'}
 function getValues(){
-  return {
-    ref:document.getElementById('ref').value,
-    date:document.getElementById('date').value,
-    client:document.getElementById('client').value,
-    address:document.getElementById('clientAddress').value,
-    motif:document.getElementById('motif').value,
-    designation:document.getElementById('designation').value,
-    qty:parseFloat(document.getElementById('qty').value)||0,
-    price:parseFloat(document.getElementById('price').value)||0,
-    tva:parseFloat(document.getElementById('tva').value)||0
-  };
+  return {ref:document.getElementById('ref').value,date:document.getElementById('date').value,
+  client:document.getElementById('client').value,address:document.getElementById('clientAddress').value,
+  motif:document.getElementById('motif').value,designation:document.getElementById('designation').value,
+  qty:parseFloat(document.getElementById('qty').value)||0,price:parseFloat(document.getElementById('price').value)||0,
+  tva:parseFloat(document.getElementById('tva').value)||0};
 }
 function updateInvoice(){
   const v=getValues(), ht=v.qty*v.price, tva=ht*v.tva/100, ttc=ht+tva;
@@ -321,88 +289,105 @@ function downloadRecapCSV(){
   const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
   a.download='recap-factures-'+document.getElementById('recapMonth').value+'.csv';a.click();
 }
-function makePDF(element,filename){
-  const container=document.createElement('div');
-  container.style.position='fixed';container.style.left='-10000px';container.style.top='0';
-  container.appendChild(element);document.body.appendChild(container);
-  return html2pdf().set({
-    margin:[12,12,14,12],filename,image:{type:'jpeg',quality:.98},
-    html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',windowWidth:900},
-    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
-  }).from(element).save().finally(()=>container.remove());
+function loadImage(src){return new Promise(res=>{if(!src)return res(null);const i=new Image();i.onload=()=>res(i);i.onerror=()=>res(null);i.src=src})}
+function addImageFit(doc,img,x,y,maxW,maxH){
+  if(!img)return y;
+  const r=Math.min(maxW/img.width,maxH/img.height), w=img.width*r, h=img.height*r;
+  const fmt=img.src.startsWith('data:image/png')?'PNG':'JPEG';
+  doc.addImage(img.src,fmt,x,y,w,h);return y+h;
 }
 function downloadPDF(){
   updateInvoice(); const v=getValues();
   const ht=v.qty*v.price, tva=ht*v.tva/100, ttc=ht+tva;
-  const logo=document.getElementById('logoPreview'), sig=document.getElementById('signaturePreview');
-  const page=document.createElement('div');
-  page.setAttribute('style','width:820px;padding:40px;font-family:Arial,Helvetica,sans-serif;color:#26333f;background:#fff;box-sizing:border-box');
-  page.innerHTML=
-  '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:40px;padding-bottom:26px;border-bottom:3px solid #17324f">'+
-    '<div style="max-width:330px">'+
-      (logo&&!logo.classList.contains('hidden')?'<img src="'+logo.src+'" style="max-height:70px;max-width:180px;object-fit:contain;margin-bottom:16px">':'')+
-      '<div style="color:#17324f;font-size:21px;font-weight:bold;line-height:1.3">Cabinet PsyH<br>Céline Bourbon<br>Psychologue</div>'+
-      '<div style="margin-top:12px;font-size:12.5px;color:#6b7784;line-height:1.6">www.psyh.fr<br>contact@psyh.fr<br>07 56 87 70 51</div>'+
-    '</div>'+
-    '<div style="text-align:right">'+
-      '<div style="color:#17324f;font-size:27px;font-weight:bold;letter-spacing:3px;margin-bottom:18px">FACTURE</div>'+
-      '<div style="font-size:13.5px;color:#6b7784">Référence<br><b style="color:#17324f;font-size:15px">'+v.ref+'</b></div>'+
-      '<div style="margin-top:12px;font-size:13.5px;color:#6b7784">Date<br><b style="color:#17324f;font-size:15px">'+(v.date?new Date(v.date+'T00:00:00').toLocaleDateString('fr-FR'):'')+'</b></div>'+
-    '</div>'+
-  '</div>'+
-  '<div style="margin:32px 0;padding:20px 24px;background:#f8fafc;border-left:4px solid #b08642">'+
-    '<div style="font-size:11.5px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#17324f;margin-bottom:8px">Facturé à</div>'+
-    '<div style="font-size:15px">'+(v.client||'')+'</div>'+
-    (v.address?'<div style="font-size:13.5px;color:#6b7784;white-space:pre-line">'+v.address+'</div>':'')+
-  '</div>'+
-  '<table style="width:100%;border-collapse:collapse;font-size:13.5px">'+
-    '<thead><tr style="background:#17324f;color:#fff">'+
-      '<th style="padding:13px 15px;text-align:left">Motif / Prestation</th>'+
-      '<th style="padding:13px 15px;text-align:left">Unité de vente</th>'+
-      '<th style="padding:13px 15px;text-align:right">Qté — heures</th>'+
-      '<th style="padding:13px 15px;text-align:right">Prix</th>'+
-      '<th style="padding:13px 15px;text-align:right">Total</th>'+
-    '</tr></thead>'+
-    '<tbody><tr style="border-bottom:1px solid #e4e9ef">'+
-      '<td style="padding:18px 15px;vertical-align:top"><b style="color:#17324f">'+v.motif+'</b><div style="margin-top:5px;color:#6b7784">'+v.designation+'</div></td>'+
-      '<td style="padding:18px 15px">Heure de consultation</td>'+
-      '<td style="padding:18px 15px;text-align:right">'+v.qty.toLocaleString('fr-FR')+'</td>'+
-      '<td style="padding:18px 15px;text-align:right">'+eur(v.price)+'</td>'+
-      '<td style="padding:18px 15px;text-align:right;font-weight:bold">'+eur(ht)+'</td>'+
-    '</tr></tbody>'+
-  '</table>'+
-  '<div style="width:300px;margin:28px 0 0 auto;font-size:14px">'+
-    '<div style="display:flex;justify-content:space-between;padding:8px 0"><span>Total HT</span><span>'+eur(ht)+'</span></div>'+
-    '<div style="display:flex;justify-content:space-between;padding:8px 0"><span>TVA</span><span>'+eur(tva)+'</span></div>'+
-    '<div style="display:flex;justify-content:space-between;padding:14px 0 0;margin-top:8px;border-top:2px solid #17324f;color:#17324f;font-weight:bold;font-size:19px"><span>Total TTC</span><span>'+eur(ttc)+'</span></div>'+
-  '</div>'+
-  '<div style="margin-top:60px;text-align:right">'+
-    (sig&&!sig.classList.contains('hidden')?'<img src="'+sig.src+'" style="max-height:80px;max-width:210px;display:block;margin:0 auto 8px">':'')+
-    '<div style="font-size:12.5px;color:#6b7784">Céline Bourbon<br>Psychologue</div>'+
-  '</div>'+
-  '<div style="margin-top:42px;padding-top:16px;border-top:1px solid #dde3ea;font-size:10.5px;color:#6b7784;line-height:1.6">'+
-    '<b>Cabinet PsyH — Céline Bourbon, Psychologue.</b><br>Numéro ADELI : 339332694 — SIRET : 82241682200036.<br>Inscription de l’entreprise au répertoire Sirene — Déclaration n° U63070283920.<br>'+
-    (v.tva>0?('TVA au taux de '+v.tva+' %.'):('TVA non applicable, article 293 B du CGI.'))+
-    '<br>En cas de retard de paiement, une indemnité forfaitaire pour frais de recouvrement de 40 € pourra être appliquée, conformément à l’article L441-10 du Code de commerce.'+
-  '</div>';
-  makePDF(page,'facture-'+v.ref+'.pdf').catch(()=>{alert('Le téléchargement PDF a rencontré un problème. Utilisez « Imprimer » puis « Enregistrer au format PDF » comme solution de secours.');});
+  const s=getStore();
+  Promise.all([loadImage(s.logo),loadImage(s.signature)]).then(([logo,sig])=>{
+    const doc=new window.jspdf.jsPDF({unit:'mm',format:'a4'});
+    const W=210; let y=18;
+    doc.setDrawColor(23,50,79); doc.setFillColor(23,50,79);
+    if(logo){const w=Math.min(52,logo.width*30/logo.height);const h=w*logo.height/logo.width;doc.addImage(logo.src,logo.src.startsWith('data:image/png')?'PNG':'JPEG',14,y,w,h);y+=h+8}
+    doc.setTextColor(23,50,79); doc.setFont('helvetica','bold'); doc.setFontSize(15);
+    doc.text('Cabinet PsyH',14,y); y+=6.5;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(107,119,132);
+    doc.text('Céline Bourbon — Psychologue',14,y); y+=5;
+    doc.text('www.psyh.fr  |  contact@psyh.fr  |  07 56 87 70 51',14,y);
+    doc.setTextColor(23,50,79); doc.setFont('helvetica','bold'); doc.setFontSize(24);
+    doc.text('FACTURE',W-14,y-8,{align:'right'});
+    doc.setFontSize(10); doc.setTextColor(107,119,132); doc.setFont('helvetica','normal');
+    doc.text('Référence : '+v.ref,W-14,y+1,{align:'right'});
+    doc.text('Date : '+(v.date?new Date(v.date+'T00:00:00').toLocaleDateString('fr-FR'):''),W-14,y+7,{align:'right'});
+    y+=14; doc.setDrawColor(23,50,79); doc.setLineWidth(.8); doc.line(14,y,W-14,y); y+=12;
+    doc.setFillColor(248,250,252); doc.rect(14,y-6,W-28,22,'F');
+    doc.setFillColor(176,134,66); doc.rect(14,y-6,1.6,22,'F');
+    doc.setTextColor(23,50,79); doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
+    doc.text('FACTURÉ À',19,y-1);
+    doc.setFontSize(11); doc.text(v.client||'',19,y+5);
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(107,119,132);
+    if(v.address)doc.text(v.address,19,y+11,{maxWidth:W-50});
+    y+=34;
+    doc.setFillColor(23,50,79); doc.rect(14,y,W-28,10,'F');
+    doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(9);
+    doc.text('MOTIF / PRESTATION',17,y+6.5);
+    doc.text('UNITÉ DE VENTE',90,y+6.5);
+    doc.text('QTÉ — HEURES',135,y+6.5,{align:'right'});
+    doc.text('PRIX',165,y+6.5,{align:'right'});
+    doc.text('TOTAL',W-17,y+6.5,{align:'right'});
+    y+=10;
+    doc.setDrawColor(228,233,239); doc.setLineWidth(.2); doc.line(14,y,W-14,y); y+=9;
+    doc.setTextColor(23,50,79); doc.setFont('helvetica','bold'); doc.setFontSize(10.5);
+    doc.text(v.motif,17,y);
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(107,119,132);
+    doc.text(v.designation,17,y+5);
+    doc.setTextColor(38,51,63); doc.setFontSize(10);
+    doc.text('Heure de consultation',90,y);
+    doc.text(v.qty.toLocaleString('fr-FR'),135,y,{align:'right'});
+    doc.text(eur(v.price),165,y,{align:'right'});
+    doc.setFont('helvetica','bold'); doc.text(eur(ht),W-17,y,{align:'right'});
+    y+=16;
+    const tx=120;
+    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(38,51,63);
+    doc.text('Total HT',tx,y); doc.text(eur(ht),W-17,y,{align:'right'}); y+=7;
+    doc.text('TVA',tx,y); doc.text(eur(tva),W-17,y,{align:'right'}); y+=10;
+    doc.setDrawColor(23,50,79); doc.setLineWidth(.6); doc.line(tx,y,W-14,y); y+=9;
+    doc.setTextColor(23,50,79); doc.setFont('helvetica','bold'); doc.setFontSize(15);
+    doc.text('Total TTC',tx,y); doc.text(eur(ttc),W-17,y,{align:'right'});
+    if(sig){const w=Math.min(55,sig.width*35/sig.height);const h=w*sig.height/sig.width;doc.addImage(sig.src,sig.src.startsWith('data:image/png')?'PNG':'JPEG',W-17-w,y+14,w,h)}
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(107,119,132);
+    doc.text('Céline Bourbon',W-17,y+30,{align:'right'});
+    doc.text('Psychologue',W-17,y+35,{align:'right'});
+    y=262;
+    doc.setDrawColor(221,227,234); doc.setLineWidth(.2); doc.line(14,y,W-14,y); y+=6;
+    doc.setFontSize(7.6); doc.setTextColor(107,119,132);
+    doc.text('Cabinet PsyH — Céline Bourbon, Psychologue.  Numéro ADELI : 339332694.  SIRET : 82241682200036.',14,y);
+    doc.text('Inscription de l’entreprise au répertoire Sirene — Déclaration n° U63070283920.',14,y+4);
+    doc.text(v.tva>0?('TVA au taux de '+v.tva+' %.'):('TVA non applicable, article 293 B du CGI.'),14,y+8);
+    doc.text('En cas de retard de paiement, une indemnité forfaitaire pour frais de recouvrement de 40 € pourra être appliquée, conformément à l’article L441-10 du Code de commerce.',14,y+12,{maxWidth:W-28});
+    doc.save('facture-'+v.ref+'.pdf');
+  });
 }
 function downloadRecapPDF(){
   const list=monthInvoices(); if(!list.length){alert('Aucune facture pour ce mois.');return}
-  let total=0, rows='';
-  list.forEach(i=>{total+=i.ht;rows+='<tr style="border-bottom:1px solid #e4e9ef"><td style="padding:10px">'+i.ref+'</td><td style="padding:10px">'+i.date+'</td><td style="padding:10px">'+(i.client||'')+'</td><td style="padding:10px">'+(i.motif||'')+'</td><td style="padding:10px;text-align:right">'+i.qty+'</td><td style="padding:10px;text-align:right">'+eur(i.ht)+'</td></tr>'});
-  const page=document.createElement('div');
-  page.setAttribute('style','width:820px;padding:40px;font-family:Arial,Helvetica,sans-serif;color:#26333f;background:#fff;box-sizing:border-box');
-  page.innerHTML='<div style="color:#17324f;font-size:23px;font-weight:bold;margin-bottom:6px">Cabinet PsyH</div><div style="color:#6b7784;font-size:14px;margin-bottom:28px">Récapitulatif des factures — '+document.getElementById('recapMonth').value+'</div><table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr style="background:#17324f;color:#fff"><th style="padding:10px;text-align:left">Référence</th><th style="padding:10px;text-align:left">Date</th><th style="padding:10px;text-align:left">Client</th><th style="padding:10px;text-align:left">Motif</th><th style="padding:10px;text-align:right">Heures</th><th style="padding:10px;text-align:right">Total HT</th></tr></thead><tbody>'+rows+'</tbody></table><div style="width:300px;margin:24px 0 0 auto;display:flex;justify-content:space-between;border-top:2px solid #17324f;padding-top:12px;color:#17324f;font-weight:bold;font-size:17px"><span>Total du mois</span><span>'+eur(total)+'</span></div>';
-  makePDF(page,'recap-factures-'+document.getElementById('recapMonth').value+'.pdf').catch(()=>alert('Le téléchargement du récapitulatif PDF a rencontré un problème.'));
-}
-function downloadRecapCSV(){
-  const list=monthInvoices(); if(!list.length){alert('Aucune facture pour ce mois.');return}
-  const rows=[['Référence','Date','Client','Motif','Désignation','Heures','Prix unitaire HT','TVA %','Total HT']];
-  list.forEach(i=>rows.push([i.ref,i.date,i.client,i.motif,i.designation,i.qty,i.price,i.tva,i.ht.toFixed(2)]));
-  const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\n');
-  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
-  a.download='recap-factures-'+document.getElementById('recapMonth').value+'.csv';a.click();
+  const doc=new window.jspdf.jsPDF({unit:'mm',format:'a4'}); const W=210;
+  doc.setTextColor(23,50,79); doc.setFont('helvetica','bold'); doc.setFontSize(19);
+  doc.text('Cabinet PsyH',14,20);
+  doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(107,119,132);
+  doc.text('Récapitulatif des factures — '+document.getElementById('recapMonth').value,14,28);
+  let y=40; doc.setFillColor(23,50,79); doc.rect(14,y,W-28,9,'F');
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
+  doc.text('RÉFÉRENCE',17,y+6); doc.text('DATE',55,y+6); doc.text('CLIENT',80,y+6);
+  doc.text('MOTIF',120,y+6); doc.text('HEURES',160,y+6,{align:'right'}); doc.text('TOTAL HT',W-17,y+6,{align:'right'});
+  y+=9; let total=0;
+  list.forEach((i,n)=>{
+    if(y>270){doc.addPage();y=20}
+    if(n%2)doc.setFillColor(248,250,252),doc.rect(14,y,W-28,9,'F');
+    doc.setTextColor(38,51,63); doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+    doc.text(i.ref,17,y+6); doc.text(i.date,55,y+6); doc.text(i.client||'',80,y+6,{maxWidth:36});
+    doc.text(i.motif||'',120,y+6,{maxWidth:36}); doc.text(String(i.qty),160,y+6,{align:'right'});
+    doc.text(eur(i.ht),W-17,y+6,{align:'right'}); y+=9; total+=i.ht;
+  });
+  y+=6; doc.setDrawColor(23,50,79); doc.setLineWidth(.5); doc.line(120,y,W-14,y); y+=8;
+  doc.setTextColor(23,50,79); doc.setFont('helvetica','bold'); doc.setFontSize(13);
+  doc.text('Total du mois',120,y); doc.text(eur(total),W-17,y,{align:'right'});
+  doc.save('recap-factures-'+document.getElementById('recapMonth').value+'.pdf');
 }
 function sendGmail(){
   updateInvoice(); const v=getValues();
