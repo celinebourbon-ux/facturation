@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PsyH — Facturation</title>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 :root{--bleu:#1f3a5f;--or:#b98a3c;--gris:#f4f6f8;--texte:#22303c}
@@ -45,6 +47,7 @@ td{padding:9px;border-bottom:1px solid #e3e8ee}
 .signature img{max-height:90px;max-width:220px}
 .legal{margin-top:28px;border-top:1px solid #dde3e9;padding-top:12px;font-size:10.5px;color:#667;line-height:1.45}
 .note{font-size:12px;color:#667}
+.history-item{display:flex;justify-content:space-between;gap:10px;align-items:center;border-bottom:1px solid #e3e8ee;padding:8px 0}
 @media(max-width:760px){.grid{grid-template-columns:1fr}.inv-header{flex-direction:column}}
 </style>
 </head>
@@ -56,7 +59,7 @@ td{padding:9px;border-bottom:1px solid #e3e8ee}
   <label for="pwd">Mot de passe</label>
   <input id="pwd" type="password" placeholder="Mot de passe" autocomplete="current-password">
   <button onclick="login()">Entrer</button>
-  <p class="note" style="margin-top:14px">Mot de passe par défaut : <b>PsyH2026</b>. Vous pouvez le modifier dans « Paramètres ».</p>
+  <p class="note" style="margin-top:14px">Mot de passe par défaut : <b>PsyH2026</b>. Modifiable dans « Paramètres ».</p>
 </div>
 
 <div id="app" class="app hidden">
@@ -153,6 +156,14 @@ td{padding:9px;border-bottom:1px solid #e3e8ee}
       <button onclick="updateInvoice()">Mettre à jour l’aperçu</button>
       <button class="gold" onclick="downloadPDF()">Télécharger le PDF</button>
       <button class="secondary" onclick="sendGmail()">Envoyer via Gmail</button>
+      <button class="secondary" onclick="saveInvoice()">Enregistrer la facture</button>
+      <button class="secondary" onclick="exportData()">Exporter mes données</button>
+      <label class="secondary" style="padding:11px 16px;border-radius:8px;cursor:pointer">Importer des données<input type="file" id="importFile" accept=".json" style="display:none"></label>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h2>Factures enregistrées</h2>
+      <div id="historyList"></div>
     </div>
   </div>
 
@@ -169,7 +180,7 @@ td{padding:9px;border-bottom:1px solid #e3e8ee}
         <button onclick="saveSettings()">Enregistrer</button>
       </div>
     </div>
-    <p class="note">Le logo, la signature, le mot de passe et l’email sont enregistrés localement dans ce navigateur. Pour un usage sur plusieurs appareils, exportez ou conservez vos fichiers originaux.</p>
+    <p class="note">Le logo, la signature, le mot de passe et l’email sont enregistrés localement dans ce navigateur. Utilisez « Exporter mes données » pour sauvegarder ou transférer votre configuration.</p>
     <button class="secondary" onclick="showTab('invoice')">Retour à la facture</button>
   </div>
 </div>
@@ -195,7 +206,7 @@ function init(){
   if(s.signature){const i=document.getElementById('signaturePreview');i.src=s.signature;i.classList.remove('hidden')}
   if(s.email)document.getElementById('defaultEmail').value=s.email;
   if(!document.getElementById('date').value)document.getElementById('date').value=new Date().toISOString().slice(0,10);
-  updateInvoice();
+  updateInvoice();renderHistory();
 }
 function eur(n){return Number(n||0).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'}
 function updateInvoice(){
@@ -251,6 +262,57 @@ function sendGmail(){
   window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(to)+'&su='+encodeURIComponent(subject)+'&body='+body,'_blank');
   alert('Gmail s’ouvre avec le message prérempli. Ajoutez le PDF téléchargé en pièce jointe, puis envoyez.');
 }
+
+function collectInvoice(){
+  return {ref:document.getElementById('ref').value,date:document.getElementById('date').value,motif:document.getElementById('motif').value,client:document.getElementById('client').value,clientAddress:document.getElementById('clientAddress').value,designation:document.getElementById('designation').value,qty:document.getElementById('qty').value,price:document.getElementById('price').value,tva:document.getElementById('tva').value};
+}
+function fillInvoice(v){
+  document.getElementById('ref').value=v.ref||'';
+  document.getElementById('date').value=v.date||'';
+  document.getElementById('motif').value=v.motif||'Consultation de psychologie';
+  document.getElementById('client').value=v.client||'';
+  document.getElementById('clientAddress').value=v.clientAddress||'';
+  document.getElementById('designation').value=v.designation||'Consultation de psychologie';
+  document.getElementById('qty').value=v.qty||1;
+  document.getElementById('price').value=v.price||0;
+  document.getElementById('tva').value=v.tva||0;
+  updateInvoice();
+}
+function saveInvoice(){
+  updateInvoice();
+  const s=getStore(); s.invoices=s.invoices||[];
+  const inv=collectInvoice();
+  const i=s.invoices.findIndex(x=>x.ref===inv.ref);
+  if(i>=0)s.invoices[i]=inv; else s.invoices.unshift(inv);
+  setStore(s); renderHistory(); alert('Facture enregistrée.');
+}
+function renderHistory(){
+  const s=getStore(); const list=s.invoices||[];
+  const el=document.getElementById('historyList');
+  if(!list.length){el.innerHTML='<p class="note">Aucune facture enregistrée.</p>';return}
+  el.innerHTML=list.map((v,i)=>`<div class="history-item"><div><b>${v.ref}</b> — ${v.client||'Client non renseigné'}<br><span class="note">${v.date} · ${v.motif}</span></div><div><button class="secondary" onclick="loadInvoice(${i})">Ouvrir</button> <button class="secondary" onclick="duplicateInvoice(${i})">Dupliquer</button> <button class="secondary" onclick="deleteInvoice(${i})">Supprimer</button></div></div>`).join('');
+}
+function loadInvoice(i){fillInvoice(getStore().invoices[i])}
+function duplicateInvoice(i){
+  const v={...getStore().invoices[i]};
+  v.ref=(v.ref||'')+'-copie'; fillInvoice(v); saveInvoice();
+}
+function deleteInvoice(i){
+  if(!confirm('Supprimer définitivement cette facture enregistrée ?'))return;
+  const s=getStore(); s.invoices.splice(i,1); setStore(s); renderHistory();
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(getStore(),null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='psyh-facturation-donnees.json'; a.click();
+}
+document.getElementById('importFile').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{try{const data=JSON.parse(ev.target.result);setStore(data);init();renderHistory();alert('Données importées.')}catch(err){alert('Fichier invalide.')}};
+  r.readAsText(f);
+});
+
 if(sessionStorage.getItem('psyhAuth')==='1'){document.getElementById('login').classList.add('hidden');document.getElementById('app').classList.remove('hidden');init()}
 </script>
 </body>
