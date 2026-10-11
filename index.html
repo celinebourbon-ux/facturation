@@ -87,13 +87,34 @@ tbody td{padding:20px 16px;border-bottom:1px solid var(--ligne);vertical-align:t
         <label>Motif de consultation</label>
         <select id="motif">
           <option>Consultation de psychologie</option>
+          <option>Séance de coaching</option>
+          <option>Séance d'accompagnement</option>
+          <option>Séance Méthode V.A.L.E.U.R©</option>
           <option>Bilan psychologique</option>
           <option>Entretien d'évaluation</option>
           <option>Accompagnement psychologique</option>
           <option>Consultation de suivi</option>
         </select>
-        <label>Client / Patient</label><input id="client" placeholder="Nom et prénom">
-        <label>Adresse du client — optionnel</label><textarea id="clientAddress" rows="2"></textarea>
+
+        <label>Type de client</label>
+        <select id="clientType" onchange="toggleClientType()">
+          <option value="particulier">Particulier / Patient</option>
+          <option value="entreprise">Entreprise</option>
+        </select>
+
+        <div id="particulierFields">
+          <label>Client / Patient</label><input id="client" placeholder="Nom et prénom">
+        </div>
+
+        <div id="entrepriseFields" class="hidden">
+          <label>Raison sociale</label><input id="companyName" placeholder="Nom de l’entreprise">
+          <label>SIRET de l’entreprise — optionnel</label><input id="companySiret" placeholder="123 456 789 00012">
+          <label>Contact au sein de l’entreprise — optionnel</label><input id="companyContact" placeholder="Nom du contact">
+        </div>
+
+        <label>Adresse — optionnel</label><textarea id="clientAddress" rows="2"></textarea>
+        <label>Email du client — optionnel</label><input id="clientEmail" type="email" placeholder="exemple@email.com">
+        <label>Téléphone du client — optionnel</label><input id="clientPhone" type="tel" placeholder="06 12 34 56 78">
       </div>
 
       <div class="card">
@@ -122,9 +143,11 @@ tbody td{padding:20px 16px;border-bottom:1px solid var(--ligne);vertical-align:t
       </div>
 
       <div class="client-block">
-        <strong>Facturé à</strong>
+        <strong id="outClientLabel">Facturé à</strong>
         <div id="outClient"></div>
+        <div id="outClientExtra"></div>
         <div id="outClientAddress"></div>
+        <div id="outClientContact"></div>
       </div>
 
       <table>
@@ -218,18 +241,40 @@ function generateRef(force){
 function regenerateRef(){generateRef(true);updateInvoice()}
 function eur(n){return Number(n||0).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'}
 function getValues(){
+  const type=document.getElementById('clientType').value;
   return {ref:document.getElementById('ref').value,date:document.getElementById('date').value,
-  client:document.getElementById('client').value,address:document.getElementById('clientAddress').value,
+  clientType:type,
+  client:type==='entreprise'?document.getElementById('companyName').value:document.getElementById('client').value,
+  companySiret:document.getElementById('companySiret').value,
+  companyContact:document.getElementById('companyContact').value,
+  email:document.getElementById('clientEmail').value,
+  phone:document.getElementById('clientPhone').value,
+  address:document.getElementById('clientAddress').value,
   motif:document.getElementById('motif').value,designation:document.getElementById('designation').value,
   qty:parseFloat(document.getElementById('qty').value)||0,price:parseFloat(document.getElementById('price').value)||0,
   tva:parseFloat(document.getElementById('tva').value)||0};
+}
+function toggleClientType(){
+  const t=document.getElementById('clientType').value;
+  document.getElementById('particulierFields').classList.toggle('hidden',t!=='particulier');
+  document.getElementById('entrepriseFields').classList.toggle('hidden',t!=='entreprise');
+  updateInvoice();
 }
 function updateInvoice(){
   const v=getValues(), ht=v.qty*v.price, tva=ht*v.tva/100, ttc=ht+tva;
   document.getElementById('outRef').textContent=v.ref;
   document.getElementById('outDate').textContent=v.date?new Date(v.date+'T00:00:00').toLocaleDateString('fr-FR'):'';
+  document.getElementById('outClientLabel').textContent=v.clientType==='entreprise'?'Facturé à — Entreprise':'Facturé à';
   document.getElementById('outClient').textContent=v.client;
+  let extra='';
+  if(v.clientType==='entreprise'&&v.companySiret)extra='SIRET : '+v.companySiret;
+  if(v.clientType==='entreprise'&&v.companyContact)extra+=(extra?'  |  ':'')+'Contact : '+v.companyContact;
+  document.getElementById('outClientExtra').textContent=extra;
   document.getElementById('outClientAddress').textContent=v.address;
+  let contact='';
+  if(v.email)contact=v.email;
+  if(v.phone)contact+=(contact?'  |  ':'')+v.phone;
+  document.getElementById('outClientContact').textContent=contact;
   document.getElementById('outMotif').textContent=v.motif;
   document.getElementById('outDesignation').textContent=v.designation;
   document.getElementById('outQty').textContent=v.qty.toLocaleString('fr-FR');
@@ -240,7 +285,7 @@ function updateInvoice(){
   document.getElementById('outTTC').textContent=eur(ttc);
   document.getElementById('legalTVA').textContent=v.tva>0?('TVA au taux de '+v.tva+' %.'):('TVA non applicable, article 293 B du CGI.');
 }
-document.querySelectorAll('#tabInvoice input,#tabInvoice select').forEach(el=>el.addEventListener('input',()=>{if(el.id==='date')generateRef(false);updateInvoice()}));
+document.querySelectorAll('#tabInvoice input,#tabInvoice select').forEach(el=>el.addEventListener('input',()=>{if(el.id==='date')generateRef(false);if(el.id==='clientType')toggleClientType();updateInvoice()}));
 function readImage(input,key){
   const f=input.files[0]; if(!f)return;
   const r=new FileReader(); r.onload=e=>{const s=getStore();s[key]=e.target.result;setStore(s);init()};r.readAsDataURL(f);
@@ -260,12 +305,12 @@ function init(){
   if(s.email)document.getElementById('defaultEmail').value=s.email;
   if(!document.getElementById('date').value)document.getElementById('date').value=new Date().toISOString().slice(0,10);
   document.getElementById('recapMonth').value=new Date().toISOString().slice(0,7);
-  generateRef(false);updateInvoice();renderRecap();
+  generateRef(false);toggleClientType();updateInvoice();renderRecap();
 }
 function saveInvoice(){
   updateInvoice(); const v=getValues();
   const s=getStore(); s.invoices=s.invoices||[];
-  const inv={ref:v.ref,date:v.date,client:v.client,motif:v.motif,designation:v.designation,qty:v.qty,price:v.price,tva:v.tva,ht:v.qty*v.price};
+  const inv={ref:v.ref,date:v.date,clientType:v.clientType,client:v.client,companySiret:v.companySiret,companyContact:v.companyContact,email:v.email,phone:v.phone,motif:v.motif,designation:v.designation,qty:v.qty,price:v.price,tva:v.tva,ht:v.qty*v.price};
   const i=s.invoices.findIndex(x=>x.ref===v.ref);
   if(i>=0)s.invoices[i]=inv; else s.invoices.push(inv);
   setStore(s);renderRecap();alert('Facture enregistrée dans le récapitulatif.');
@@ -283,19 +328,13 @@ function renderRecap(){
 }
 function downloadRecapCSV(){
   const list=monthInvoices(); if(!list.length){alert('Aucune facture pour ce mois.');return}
-  const rows=[['Référence','Date','Client','Motif','Désignation','Heures','Prix unitaire HT','TVA %','Total HT']];
-  list.forEach(i=>rows.push([i.ref,i.date,i.client,i.motif,i.designation,i.qty,i.price,i.tva,i.ht.toFixed(2)]));
+  const rows=[['Référence','Date','Type de client','Client','SIRET','Contact entreprise','Email','Téléphone','Motif','Désignation','Heures','Prix unitaire HT','TVA %','Total HT']];
+  list.forEach(i=>rows.push([i.ref,i.date,i.clientType==='entreprise'?'Entreprise':'Particulier',i.client,i.companySiret||'',i.companyContact||'',i.email||'',i.phone||'',i.motif,i.designation,i.qty,i.price,i.tva,i.ht.toFixed(2)]));
   const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\n');
   const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
   a.download='recap-factures-'+document.getElementById('recapMonth').value+'.csv';a.click();
 }
 function loadImage(src){return new Promise(res=>{if(!src)return res(null);const i=new Image();i.onload=()=>res(i);i.onerror=()=>res(null);i.src=src})}
-function addImageFit(doc,img,x,y,maxW,maxH){
-  if(!img)return y;
-  const r=Math.min(maxW/img.width,maxH/img.height), w=img.width*r, h=img.height*r;
-  const fmt=img.src.startsWith('data:image/png')?'PNG':'JPEG';
-  doc.addImage(img.src,fmt,x,y,w,h);return y+h;
-}
 function downloadPDF(){
   updateInvoice(); const v=getValues();
   const ht=v.qty*v.price, tva=ht*v.tva/100, ttc=ht+tva;
@@ -303,7 +342,6 @@ function downloadPDF(){
   Promise.all([loadImage(s.logo),loadImage(s.signature)]).then(([logo,sig])=>{
     const doc=new window.jspdf.jsPDF({unit:'mm',format:'a4'});
     const W=210; let y=18;
-    doc.setDrawColor(23,50,79); doc.setFillColor(23,50,79);
     if(logo){const w=Math.min(52,logo.width*30/logo.height);const h=w*logo.height/logo.width;doc.addImage(logo.src,logo.src.startsWith('data:image/png')?'PNG':'JPEG',14,y,w,h);y+=h+8}
     doc.setTextColor(23,50,79); doc.setFont('helvetica','bold'); doc.setFontSize(15);
     doc.text('Cabinet PsyH',14,y); y+=6.5;
@@ -316,14 +354,20 @@ function downloadPDF(){
     doc.text('Référence : '+v.ref,W-14,y+1,{align:'right'});
     doc.text('Date : '+(v.date?new Date(v.date+'T00:00:00').toLocaleDateString('fr-FR'):''),W-14,y+7,{align:'right'});
     y+=14; doc.setDrawColor(23,50,79); doc.setLineWidth(.8); doc.line(14,y,W-14,y); y+=12;
-    doc.setFillColor(248,250,252); doc.rect(14,y-6,W-28,22,'F');
-    doc.setFillColor(176,134,66); doc.rect(14,y-6,1.6,22,'F');
+    doc.setFillColor(248,250,252); doc.rect(14,y-6,W-28,26,'F');
+    doc.setFillColor(176,134,66); doc.rect(14,y-6,1.6,26,'F');
     doc.setTextColor(23,50,79); doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
-    doc.text('FACTURÉ À',19,y-1);
+    doc.text(v.clientType==='entreprise'?'FACTURÉ À — ENTREPRISE':'FACTURÉ À',19,y-1);
     doc.setFontSize(11); doc.text(v.client||'',19,y+5);
     doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(107,119,132);
-    if(v.address)doc.text(v.address,19,y+11,{maxWidth:W-50});
-    y+=34;
+    let ey=y+11; const extras=[];
+    if(v.clientType==='entreprise'&&v.companySiret)extras.push('SIRET : '+v.companySiret);
+    if(v.clientType==='entreprise'&&v.companyContact)extras.push('Contact : '+v.companyContact);
+    if(extras.length){doc.text(extras.join('  |  '),19,ey);ey+=5}
+    if(v.address){doc.text(v.address,19,ey,{maxWidth:W-50});ey+=5+Math.min(12,v.address.split('\n').length*5)}
+    const contacts=[]; if(v.email)contacts.push(v.email); if(v.phone)contacts.push(v.phone);
+    if(contacts.length)doc.text(contacts.join('  |  '),19,ey);
+    y+=40;
     doc.setFillColor(23,50,79); doc.rect(14,y,W-28,10,'F');
     doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(9);
     doc.text('MOTIF / PRESTATION',17,y+6.5);
@@ -393,7 +437,8 @@ function sendGmail(){
   updateInvoice(); const v=getValues();
   const subject='Facture '+v.ref+' — Cabinet PsyH';
   const body=encodeURIComponent('Bonjour,\n\nVeuillez trouver ci-joint la facture '+v.ref+' du '+(v.date?new Date(v.date+'T00:00:00').toLocaleDateString('fr-FR'):'')+'.\n\nCordialement,\n\nCéline Bourbon\nCabinet PsyH — Psychologue\ncontact@psyh.fr\n07 56 87 70 51\nwww.psyh.fr');
-  window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(document.getElementById('defaultEmail').value)+'&su='+encodeURIComponent(subject)+'&body='+body,'_blank');
+  const to=v.email||document.getElementById('defaultEmail').value;
+  window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(to)+'&su='+encodeURIComponent(subject)+'&body='+body,'_blank');
   alert('Gmail s’ouvre avec le message prérempli. Ajoutez le PDF téléchargé en pièce jointe, puis envoyez.');
 }
 if(sessionStorage.getItem('psyhAuth')==='1'){document.getElementById('login').classList.add('hidden');document.getElementById('app').classList.remove('hidden');init()}
